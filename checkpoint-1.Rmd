@@ -1,0 +1,217 @@
+---
+title: "Correlated Data - Checkpoint 1"
+author: "Thomas Ehrsam"
+date: "Due September 17, 2019 at 11:59pm"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+## Covariance Matrices
+
+You will need to use Latex within Rmarkdown to complete this assignment. I've provided you with some structure to begin. Check out https://www.caam.rice.edu/~heinken/latex/symbols.pdf for a cheatsheet on writing math with Latex.
+
+
+1. Using the definition of covariance of two random variables, $Cov(X,Y) = E((X - \mu_x)(Y-\mu_y))$, show that the covariance matrix for a random vector $\mathbf{X} = (X_1,X_2)$, where the variances are along the diagonal and covariances on the off diagonal, can be written as 
+
+a. $\boldsymbol{\Sigma} = E((\mathbf{X} - E(\mathbf{X}))(\mathbf{X} - E(\mathbf{X}))^T)$
+
+ANSWER:
+
+$$E((\mathbf{X} - E(\mathbf{X}))(\mathbf{X} - E(\mathbf{X}))^T) = E\left[\left( 
+\left(\begin{array}{c}
+X_1\\
+X_2
+\end{array}\right) - 
+E\left(\begin{array}{c}
+X_1\\
+X_2
+\end{array}\right)\right)
+\left( \left(\begin{array}{c}
+X_1\\
+X_2
+\end{array}\right) - 
+E\left(\begin{array}{c}
+X_1\\
+X_2
+\end{array}\right)\right)^T
+\right]$$
+
+$$ = E\left[
+\left(\begin{array}{c}
+X_1 - \mu_1\\
+X_2 - \mu_1
+\end{array}\right)
+ \left(\begin{array}{c}
+X_1 - \mu_1 & X_2 - \mu_2\\
+\end{array}\right)
+\right]$$
+
+$$ = E\left[
+\begin{array}{c}
+(X_1 - \mu_1)^2 & (X_1 - \mu_1)(X_2 - \mu_2)\\
+(X_2 - \mu_2)(X_1-\mu_1) & (X_2 - \mu_2)^2
+\end{array}
+\right]$$
+
+$$ = \left[
+\begin{array}{c}
+E(X_1 - \mu_1)^2 & E(X_1 - \mu_1)(X_2 - \mu_2)\\
+E(X_2 - \mu_2)(X_1-\mu_1) & E(X_2 - \mu_2)^2
+\end{array}
+\right]$$ (This is allowed as the expected value of a matrix is equal to the expected value of each item in the matrix)
+$$ = \left[
+\begin{array}{c}
+Var(X_1) & Cov(X_1, X_2)\\
+Cov(X_2, X_1) & Var(X_2)
+\end{array}
+\right]$$ (By the definitions of Variance and Covariance)
+$$ = \Sigma$$
+
+b. $\boldsymbol{\Sigma} =\mathbf{V}^{1/2}\boldsymbol\Gamma \mathbf{V}^{1/2}$ where $\mathbf{V}^{1/2}$ is a diagonal matrix with standard deviations ($\sigma_1,\sigma_2$) along the diagonal and $\boldsymbol\Gamma$ is the correlation matrix. 
+
+Note: The covariance matrix is a matrix of all pairwise covariances, organized into a matrix form. The $ij$th element of the matrix is $Cov(X_i,X_j) = \sigma_{ij}$. Correlation between two random variables $X_i$ and $X_j$  is defined as $\rho_{ij} = \frac{Cov(X_i,X_j)}{\sqrt{Var(X_i)}\sqrt{Var(X_j)}}=\frac{\sigma_{ij}}{\sqrt{\sigma_{ii}}\sqrt{\sigma_{jj}}}$.
+
+
+ANSWER:
+
+$$\mathbf{V}^{1/2}\boldsymbol\Gamma \mathbf{V}^{1/2} = 
+\left(\begin{array}{cc} 
+\sigma_1 & 0\\ 
+0 & \sigma_2  
+\end{array}\right)
+\left(\begin{array}{cc} 
+1 & \rho_{12}\\ 
+ \rho_{12} & 1  
+\end{array}\right)
+\left(\begin{array}{cc} 
+\sigma_1 & 0\\ 
+0 & \sigma_2  
+\end{array}\right)$$
+
+$$ = \left(\begin{array}{cc} 
+\sigma_1 & \sigma_1\rho_{12}\\ 
+\rho_{12}\sigma_2 & \sigma_2  
+\end{array}\right)
+\left(\begin{array}{cc} 
+\sigma_1 & 0\\ 
+0 & \sigma_2  
+\end{array}\right)$$
+$$ = \left(\begin{array}{cc} 
+\sigma_1^2 & \sigma_1\sigma_2\rho_{12}\\ 
+\rho_{12}\sigma_2\sigma_1 & \sigma_2^2  
+\end{array}\right)
+$$
+$$\rho_{i,j} = Cov(X_i, X_j)/(\sigma_i*\sigma_j), Cov(X_i, x_j) = \sigma_i\sigma_j\rho_{ij}, Var(X_i) = \sigma_i^2$$
+$$\left(\begin{array}{cc} 
+\sigma_1^2 & \sigma_1\sigma_2\rho_{12}\\ 
+\rho_{12}\sigma_2\sigma_1 & \sigma_2^2  
+\end{array}\right) = 
+\left(\begin{array}{cc} 
+Var(X_1) & Cov(X_1, X_2)\\ 
+Cov(X_2, X_1) & Var(X_2) 
+\end{array}\right) = \Sigma
+$$
+2. Using what you proved above, $\boldsymbol{\Sigma} = E((\mathbf{X} - E(\mathbf{X}))(\mathbf{X} - E(\mathbf{X}))^T)$, and the properties of matrix algebra (see online notes), prove the following: 
+
+$Cov(\mathbf{AX}) = \mathbf{A}Cov(\mathbf{X})\mathbf{A}^T$ for a random vector $\mathbf{X}$ of length $k$ and $k\times k$ constant matrix $\mathbf{A} = \left(\begin{array}{cccc}a_{11}&a_{12}&\cdots&a_{1k}\\a_{21}&a_{22}&\cdots&a_{2k}\\ \vdots&\vdots&\ddots&\vdots\\ a_{k1}&a_{k2}&\cdots&a_{kk}\end{array}\right)$. 
+
+You may use anything that you have proved thus far.
+
+ANSWER:
+
+$$Cov(\mathbf{AX}) = E((\mathbf{AX} - E(\mathbf{AX}))(\mathbf{AX} - E(\mathbf{AX}))^T)$$
+$$ = E((\mathbf{AX} - AE(\mathbf{X}))(\mathbf{AX} - AE(\mathbf{X}))^T)$$
+$$ = E((\mathbf{AX} - AE(\mathbf{X}))((\mathbf{AX})^T - (AE(\mathbf{X}))^T)$$
+$$ = E((\mathbf{AX} - AE(\mathbf{X}))((\mathbf{X})^TA^T - (E(\mathbf{X})^TA^T)$$
+$$ = E(A(\mathbf{X} - E(\mathbf{X}))(\mathbf{X} - E(\mathbf{X}))^TA^T)$$
+$$ = E(A(\mathbf{X} - E(\mathbf{X}))(\mathbf{X} - E(\mathbf{X}))^TA^T)$$
+$$ = AE((\mathbf{X} - E(\mathbf{X}))(\mathbf{X} - E(\mathbf{X}))^T)A^T$$
+$$ E((\mathbf{X} - E(\mathbf{X}))(\mathbf{X} - E(\mathbf{X}))^T) = \Sigma$$
+$$AE((\mathbf{X} - E(\mathbf{X}))(\mathbf{X} - E(\mathbf{X}))^T)A^T = A\Sigma A^T = ACov(X)A^T$$
+3. Prove the following theorem for continuous and discrete random variables: If $X_l$ and $X_j$ are independent, then $Cov(X_l, X_j) = 0$.  You may use anything that you have proved thus far and basic definitions of expected value, variance, covariance.
+
+Note: The converse is not true. (You don't need to prove this)
+
+Hint: Two random variables are said to be **statistically independent** if and only if
+\[f_{lj}(x_l,x_j) = f_{l}(x_l)f_j(x_j) \]
+for all possible values of $x_l$ and $x_j$  for continuous random variables and
+\[P(X_l = x_l, X_j = x_j)=P(X_l=x_l)P(X_j=x_j) \]
+for discrete random variables.
+
+ANSWER: Assume $X_l$ and $X_j$ are independent. Then,
+
+$$Cov(X_l, X_j) = $$
+$$= E((X_l - \mu_l)(X_j-\mu_j))$$
+$$= E(X_lX_j - X_l\mu_j - X_j\mu_l + \mu_l\mu_j)$$
+$$= E(X_lX_j) - E(X_l\mu_j) - E(X_j\mu_l) + E(\mu_l\mu_j)$$
+$$= E(X_lX_j) - E(X_l)\mu_j - E(X_j)\mu_l + \mu_l\mu_j$$
+$$= E(X_lX_j) - \mu_l\mu_j - \mu_j\mu_l + \mu_l\mu_j$$
+$$= E(X_lX_j) - \mu_l\mu_j$$
+$$= E(X_l)E(X_j) - \mu_l\mu_j$$
+$$= \mu_l\mu_j - \mu_l\mu_j = 0$$
+
+## Estimate Covariance and Correlation
+
+We will talk about how to do these in class.
+
+4. Imagine that we generate a time series where the next observation is equal to the 0.90 times the past value plus some independent noise. Use R to generate a time series of 500 observations, plot that series, $x_t$, as a function of the time index $t$ and then estimate the covariance and correlation function assuming it is stationary. 
+
+
+
+```{r}
+x_t <- rep(10, 500)
+for (i in 2:500){
+  x_t[i] = 0.9 * x_t[i-1] + rnorm(1,0,.1)
+}
+
+plot(x_t)
+acf(x_t) #estimated Correlation based on lags
+acf(x_t, type = 'covariance') ##estimated Covariance based on lags
+```
+
+Looking at the graphs, the correlation functions is about $.9^{LAG}$. The covariance function is $x_t[1]*.9^{LAG}$. Thus, both the covariance and the correlation decrease towards 0 as the lag increases. The correlation also takes a long time to drop below the significance line.
+
+
+
+
+5. Imagine that we generate a time series where the next observation is equal to the -0.30 times the past value plus some independent noise. Use R to generate a time series of 500 observations, plot that series, $x_t$, as a function of the time index $t$ and then estimate the covariance and correlation function assuming it is stationary. 
+
+
+```{r}
+y_t <- rep(50, 500)
+for (i in 2:500){
+  y_t[i] = -0.3 * y_t[i-1] + rnorm(1,0,.1)
+}
+plot(y_t)
+acf(y_t)
+acf(y_t, type = 'covariance') ##estimated Covariance based on lags
+```
+
+Looking at the graphs, the correlation functions is about $-.0.3^{LAG}$. The covariance function is $x_t[1]*-0.3^{LAG}$. Thus, both the covariance and the correlation oscillate and decrease towards 0 as the lag increases.  
+
+
+6. Similar to class, create a 10x10 covariance matrix where the constant variance is 0.25 and the correlation for all lags is 0.7. Then use the Cholesky Decomposition method to generate a series of 10 observations with ath correlation structure. Estimate the covariance and correlation  assumining it is stationary. 
+
+If the correlation is .7, than the  covariance is 0.7 * .25 (the variance) = 0.175
+```{r}
+Sigma <- matrix(.175, byrow=TRUE, nrow=10, ncol=10)
+for (i in 1:10){
+    Sigma [i, i] = .25
+}
+Sigma
+L <- t(chol(Sigma))
+z <- rnorm(10)
+x = L %*% z
+x
+```
+```{r}
+acf(x)
+acf(x, type = 'covariance')
+```
+
+The correlation and covariance are both very low. Correlation drops below the significance line right away, and there is no clear function which connects one lag from the next lag. Since this matrix is so small, for our correlation to be significant, the values would have to be highly correlated. 
